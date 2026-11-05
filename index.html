@@ -488,7 +488,7 @@
                 btn.innerText = "Transmitting... 📡";
                 btn.disabled = true;
                 const docId = `${data.googleId}_timed_${data.questionType}`;
-                const docRef = doc(db, "leaderboard", docId);
+                const docRef = doc(db, "2627p2_easytenses", docId);
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists() && data.score <= docSnap.data().score) {
@@ -522,7 +522,7 @@
             if (cls !== "ALL") conds.push(where("class", "==", cls));
 
             try {
-                const q = query(collection(db, "2627p2_easytenses_kart"), ...conds, orderBy("score", "desc"), limit(30));
+                const q = query(collection(db, "2627p2_easytenses"), ...conds, orderBy("score", "desc"), limit(30));
                 const snap = await getDocs(q);
                 tbody.innerHTML = snap.empty ? "<tr><td colspan='6'>No records found in this Cup.</td></tr>" : "";
                 
