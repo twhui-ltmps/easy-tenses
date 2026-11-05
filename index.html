@@ -223,7 +223,7 @@
             padding: 15px; margin-bottom: 20px;
         }
 
-        /* Custom Modal (No native alerts/confirms allowed) */
+        /* Custom Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center;
@@ -250,7 +250,7 @@
             line-height: 1.4;
         }
 
-        /* Scrollbar styles for webkit */
+        /* Scrollbar styles */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--track-grey); border-radius: 5px; }
@@ -391,7 +391,7 @@
     
     <div class="checkered-banner banner-bottom"></div>
 
-    <!-- Custom UI Modals (Replaces alert/confirm) -->
+    <!-- Custom UI Modals -->
     <script>
         function showModal(title, msg, type = 'alert', onConfirm = null) {
             const overlay = document.getElementById('custom-modal');
@@ -452,7 +452,7 @@
 
         window.onload = function () {
             google.accounts.id.initialize({
-                client_id: "116742217903-7ni36v4h16gcakn45n699r9guthfjiu6.apps.googleusercontent.com",
+                client_id: "623171860819-1fldq3op0pmilgapk5o2j9c3f8oa7d39.apps.googleusercontent.com",
                 callback: handleCredentialResponse
             });
             google.accounts.id.renderButton(
@@ -464,18 +464,18 @@
 
     <!-- Firebase Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBVju3LLYlJ1b7RD-jy61-k6HyVaqDCzmc",
-            authDomain: "tenses-251fc.firebaseapp.com",
-            projectId: "tenses-251fc",
-            storageBucket: "tenses-251fc.firebasestorage.app",
-            messagingSenderId: "116742217903",
-            appId: "1:116742217903:web:071bfecba4d38eec51345a",
-            measurementId: "G-CRM2KKPHSJ"
+            apiKey: "AIzaSyDUODAImoAOc-o9sgOrhOYz1kImZcg3cqI",
+            authDomain: "test-7f93c.firebaseapp.com",
+            projectId: "test-7f93c",
+            storageBucket: "test-7f93c.firebasestorage.app",
+            messagingSenderId: "623171860819",
+            appId: "1:623171860819:web:587304c09b0e8bfcebc9a6",
+            measurementId: "G-S68W1EQDYS"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -488,7 +488,7 @@
                 btn.innerText = "Transmitting... 📡";
                 btn.disabled = true;
                 const docId = `${data.googleId}_timed_${data.questionType}`;
-                const docRef = doc(db, "2627p2a1_spelling_monster", docId);
+                const docRef = doc(db, "leaderboard", docId);
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists() && data.score <= docSnap.data().score) {
@@ -498,12 +498,13 @@
                     return;
                 }
                 
-                await setDoc(docRef, { ...data, gameMode: "timed", timestamp: new Date() });
+                await setDoc(docRef, { ...data, gameMode: "timed", timestamp: new Date() }, { merge: true });
                 showModal("⭐️ New Record!", "Score saved successfully! Check the Hall of Fame.");
                 document.getElementById('filter-mode').value = `timed_${data.questionType}`;
                 showScreen('leaderboard-screen');
                 fetchLeaderboard();
             } catch (e) {
+                console.error(e);
                 showModal("🍌 Slip Up!", "Error saving data. Please check your internet connection.");
             } finally {
                 btn.innerText = "Submit Score 📡";
@@ -521,7 +522,7 @@
             if (cls !== "ALL") conds.push(where("class", "==", cls));
 
             try {
-                const q = query(collection(db, "leaderboard"), ...conds, orderBy("score", "desc"), limit(30));
+                const q = query(collection(db, "2627p2_easytenses_kart"), ...conds, orderBy("score", "desc"), limit(30));
                 const snap = await getDocs(q);
                 tbody.innerHTML = snap.empty ? "<tr><td colspan='6'>No records found in this Cup.</td></tr>" : "";
                 
@@ -540,11 +541,14 @@
                         </tr>`;
                     rank++;
                 });
-            } catch (e) { tbody.innerHTML = `<tr><td colspan='6' style="color:var(--mario-red);">Error retrieving data.</td></tr>`; }
+            } catch (e) { 
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan='6' style="color:var(--mario-red);">Error retrieving data.</td></tr>`; 
+            }
         };
     </script>
 
-    <!-- Game Logic & Question Banks (P2 Level Context) -->
+    <!-- Game Logic & Question Banks -->
     <script>
         function getTimeIndicator(text) {
             const pattern = /\b(let's|can|cannot|can't|must|mustn't|right now|now|at the moment|Look|Listen|today|this morning)\b/i;
@@ -574,133 +578,131 @@
             return `⚠️ <b>Verb 'to be' tip:</b><br><b style="color:var(--toad-blue);">${subj}</b> ➔ ✔️ <b>${corrBe}</b> &nbsp;/&nbsp; ❌ <s>${selBe}</s>`;
         }
 
-// Level 1: Present Continuous Tense (60 Questions)
-const level1 = [
-    { q: "Look! Tom _____ (eat) siu mai at the tuck shop right now.", a: "is eating", w: ["are eating", "eats", "is eat"] },
-    { q: "Lily _____ (drink) lemon tea in a cha chaan teng at the moment.", a: "is drinking", w: ["are drinking", "drinks", "is drink"] },
-    { q: "Jack and Sam _____ (go) to Ocean Park by MTR right now.", a: "are going", w: ["is going", "go", "are go"] },
-    { q: "Ann _____ (take) the Star Ferry across Victoria Harbour now.", a: "is taking", w: ["are taking", "takes", "is take"] },
-    { q: "Bob and Pam _____ (buy) egg tarts from the bakery at the moment.", a: "are buying", w: ["is buying", "buy", "are buy"] },
-    { q: "Leo _____ (read) an English book in the school library right now.", a: "is reading", w: ["are reading", "reads", "is read"] },
-    { q: "Amy _____ (write) a letter to her pen pal in Tai Po now.", a: "is writing", w: ["are writing", "writes", "is write"] },
-    { q: "Mark and I _____ (draw) a picture of the Peak at the moment.", a: "are drawing", w: ["is drawing", "draw", "are draw"] },
-    { q: "Ben _____ (sleep) on the double-decker bus right now.", a: "is sleeping", w: ["are sleeping", "sleeps", "is sleep"] },
-    { q: "Paul and Sue _____ (run) to catch the minibus in Mong Kok now.", a: "are running", w: ["is running", "run", "are run"] },
-    { q: "Ken _____ (swim) at Repulse Bay beach right now.", a: "is swimming", w: ["are swimming", "swims", "is swim"] },
-    { q: "Tim _____ (give) his Octopus card to the driver at the moment.", a: "is giving", w: ["are giving", "gives", "is give"] },
-    { q: "Roy and Joy _____ (sing) the school song in the hall now.", a: "are singing", w: ["is singing", "sing", "are sing"] },
-    { q: "Jim _____ (sweep) the floor of his flat in Sha Tin right now.", a: "is sweeping", w: ["are sweeping", "sweeps", "is sweep"] },
-    { q: "Ray and Zoe _____ (build) a sandcastle in Sai Kung at the moment.", a: "are building", w: ["is building", "build", "are build"] },
-    { q: "Max _____ (choose) a new pencil case at the stationery shop now.", a: "is choosing", w: ["are choosing", "chooses", "is choose"] },
-    { q: "Dan _____ (throw) a ball in Victoria Park right now.", a: "is throwing", w: ["are throwing", "throws", "is throw"] },
-    { q: "Mia and Ian _____ (hide) from their brother in the playground now.", a: "are hiding", w: ["is hiding", "hide", "are hide"] },
-    { q: "Eva _____ (wake) up late for school this morning.", a: "is waking", w: ["are waking", "wakes", "is wake"] },
-    { q: "Ron and I _____ (blow) the hot soup at the restaurant now.", a: "are blowing", w: ["is blowing", "blow", "are blow"] },
-    { q: "Tom _____ (catch) the MTR to Central right now.", a: "is catching", w: ["are catching", "catches", "is catch"] },
-    { q: "Lily _____ (cut) a piece of paper for her Art homework now.", a: "is cutting", w: ["are cutting", "cuts", "is cut"] },
-    { q: "Jack and Sam _____ (do) their Maths exercise at the moment.", a: "are doing", w: ["is doing", "do", "are do"] },
-    { q: "Ann _____ (drive) her toy car in the living room now.", a: "is driving", w: ["are driving", "drives", "is drive"] },
-    { q: "Look! Bob _____ (fall) down on the sports ground right now.", a: "is falling", w: ["are falling", "falls", "is fall"] },
-    { q: "Leo _____ (feed) the birds in the park at the moment.", a: "is feeding", w: ["are feeding", "feeds", "is feed"] },
-    { q: "Amy and I _____ (feel) very cold in the classroom right now.", a: "are feeling", w: ["is feeling", "feel", "are feel"] },
-    { q: "Mark _____ (fight) with his brother over a toy now.", a: "is fighting", w: ["are fighting", "fights", "is fight"] },
-    { q: "Ben and Paul _____ (find) a seat in the crowded dim sum restaurant now.", a: "are finding", w: ["is finding", "find", "are find"] },
-    { q: "Look! The kite _____ (fly) high above Tai Po Waterfront Park now.", a: "is flying", w: ["are flying", "flies", "is fly"] },
-    { q: "Sue _____ (forget) her locker password right now.", a: "is forgetting", w: ["are forgetting", "forgets", "is forget"] },
-    { q: "Ken _____ (get) off the tram in Causeway Bay at the moment.", a: "is getting", w: ["are getting", "gets", "is get"] },
-    { q: "Tim and Roy _____ (grow) a bean plant for Science class now.", a: "are growing", w: ["is growing", "grow", "are grow"] },
-    { q: "Joy _____ (hang) her jacket on the chair right now.", a: "is hanging", w: ["are hanging", "hangs", "is hang"] },
-    { q: "Jim and Ray _____ (have) lunch in a fast food shop at the moment.", a: "are having", w: ["is having", "have", "are have"] },
-    { q: "Zoe _____ (hear) a loud noise outside the window now.", a: "is hearing", w: ["are hearing", "hears", "is hear"] },
-    { q: "Max _____ (hold) his umbrella because it is raining right now.", a: "is holding", w: ["are holding", "holds", "is hold"] },
-    { q: "Dan and Mia _____ (keep) their desks clean today.", a: "are keeping", w: ["is keeping", "keep", "are keep"] },
-    { q: "Ian _____ (know) the answer to the teacher's question now.", a: "is knowing", w: ["are knowing", "knows", "is know"] },
-    { q: "Eva and Ron _____ (learn) about Hong Kong history at the museum now.", a: "are learning", w: ["is learning", "learn", "are learn"] },
-    { q: "Tom _____ (leave) the classroom to go to the toilet right now.", a: "is leaving", w: ["are leaving", "leaves", "is leave"] },
-    { q: "Lily _____ (let) her friend borrow her eraser at the moment.", a: "is letting", w: ["are letting", "lets", "is let"] },
-    { q: "Jack and Sam _____ (light) a lantern for Mid-Autumn Festival now.", a: "are lighting", w: ["is lighting", "light", "are light"] },
-    { q: "Ann _____ (lose) the race on Sports Day right now.", a: "is losing", w: ["are losing", "loses", "is lose"] },
-    { q: "Bob and Pam _____ (make) dumplings for dinner at the moment.", a: "are making", w: ["is making", "make", "are make"] },
-    { q: "Leo _____ (mean) to finish his homework right now.", a: "is meaning", w: ["are meaning", "means", "is mean"] },
-    { q: "Amy _____ (meet) her friends at the MTR station now.", a: "is meeting", w: ["are meeting", "meets", "is meet"] },
-    { q: "Mark and I _____ (pay) for our fishballs with Octopus cards right now.", a: "are paying", w: ["is paying", "pay", "are pay"] },
-    { q: "Ben _____ (put) his books into his schoolbag at the moment.", a: "is putting", w: ["are putting", "puts", "is put"] },
-    { q: "Paul and Sue _____ (ride) the Ngong Ping 360 cable car now.", a: "are riding", w: ["is riding", "ride", "are ride"] },
-    { q: "Ken _____ (ring) the school bell right now.", a: "is ringing", w: ["are ringing", "rings", "is ring"] },
-    { q: "The sun _____ (rise) over Victoria Harbour this morning.", a: "is rising", w: ["are rising", "rises", "is rise"] },
-    { q: "Tim _____ (say) goodbye to his teacher at the moment.", a: "is saying", w: ["are saying", "says", "is say"] },
-    { q: "Roy and Joy _____ (see) the pandas at Ocean Park now.", a: "are seeing", w: ["is seeing", "see", "are see"] },
-    { q: "Jim _____ (sell) flags for charity in Central right now.", a: "is selling", w: ["are selling", "sells", "is sell"] },
-    { q: "Ray and Zoe _____ (send) a parcel at the post office at the moment.", a: "are sending", w: ["is sending", "send", "are send"] },
-    { q: "Max _____ (set) the table for dinner right now.", a: "is setting", w: ["are setting", "sets", "is set"] },
-    { q: "Dan _____ (sew) a button on his school uniform now.", a: "is sewing", w: ["are sewing", "sews", "is sew"] },
-    { q: "Mia and Ian _____ (shake) hands with the principal at the moment.", a: "are shaking", w: ["is shaking", "shake", "are shake"] },
-    { q: "Eva _____ (show) her new watch to her friends right now.", a: "is showing", w: ["are showing", "shows", "is show"] }
-];
+        const level1 = [
+            { q: "Look! Tom _____ (eat) siu mai at the tuck shop right now.", a: "is eating", w: ["are eating", "eats", "is eat"] },
+            { q: "Lily _____ (drink) lemon tea in a cha chaan teng at the moment.", a: "is drinking", w: ["are drinking", "drinks", "is drink"] },
+            { q: "Jack and Sam _____ (go) to Ocean Park by MTR right now.", a: "are going", w: ["is going", "go", "are go"] },
+            { q: "Ann _____ (take) the Star Ferry across Victoria Harbour now.", a: "is taking", w: ["are taking", "takes", "is take"] },
+            { q: "Bob and Pam _____ (buy) egg tarts from the bakery at the moment.", a: "are buying", w: ["is buying", "buy", "are buy"] },
+            { q: "Leo _____ (read) an English book in the school library right now.", a: "is reading", w: ["are reading", "reads", "is read"] },
+            { q: "Amy _____ (write) a letter to her pen pal in Tai Po now.", a: "is writing", w: ["are writing", "writes", "is write"] },
+            { q: "Mark and I _____ (draw) a picture of the Peak at the moment.", a: "are drawing", w: ["is drawing", "draw", "are draw"] },
+            { q: "Ben _____ (sleep) on the double-decker bus right now.", a: "is sleeping", w: ["are sleeping", "sleeps", "is sleep"] },
+            { q: "Paul and Sue _____ (run) to catch the minibus in Mong Kok now.", a: "are running", w: ["is running", "run", "are run"] },
+            { q: "Ken _____ (swim) at Repulse Bay beach right now.", a: "is swimming", w: ["are swimming", "swims", "is swim"] },
+            { q: "Tim _____ (give) his Octopus card to the driver at the moment.", a: "is giving", w: ["are giving", "gives", "is give"] },
+            { q: "Roy and Joy _____ (sing) the school song in the hall now.", a: "are singing", w: ["is singing", "sing", "are sing"] },
+            { q: "Jim _____ (sweep) the floor of his flat in Sha Tin right now.", a: "is sweeping", w: ["are sweeping", "sweeps", "is sweep"] },
+            { q: "Ray and Zoe _____ (build) a sandcastle in Sai Kung at the moment.", a: "are building", w: ["is building", "build", "are build"] },
+            { q: "Max _____ (choose) a new pencil case at the stationery shop now.", a: "is choosing", w: ["are choosing", "chooses", "is choose"] },
+            { q: "Dan _____ (throw) a ball in Victoria Park right now.", a: "is throwing", w: ["are throwing", "throws", "is throw"] },
+            { q: "Mia and Ian _____ (hide) from their brother in the playground now.", a: "are hiding", w: ["is hiding", "hide", "are hide"] },
+            { q: "Eva _____ (wake) up late for school this morning.", a: "is waking", w: ["are waking", "wakes", "is wake"] },
+            { q: "Ron and I _____ (blow) the hot soup at the restaurant now.", a: "are blowing", w: ["is blowing", "blow", "are blow"] },
+            { q: "Tom _____ (catch) the MTR to Central right now.", a: "is catching", w: ["are catching", "catches", "is catch"] },
+            { q: "Lily _____ (cut) a piece of paper for her Art homework now.", a: "is cutting", w: ["are cutting", "cuts", "is cut"] },
+            { q: "Jack and Sam _____ (do) their Maths exercise at the moment.", a: "are doing", w: ["is doing", "do", "are do"] },
+            { q: "Ann _____ (drive) her toy car in the living room now.", a: "is driving", w: ["are driving", "drives", "is drive"] },
+            { q: "Look! Bob _____ (fall) down on the sports ground right now.", a: "is falling", w: ["are falling", "falls", "is fall"] },
+            { q: "Leo _____ (feed) the birds in the park at the moment.", a: "is feeding", w: ["are feeding", "feeds", "is feed"] },
+            { q: "Amy and I _____ (feel) very cold in the classroom right now.", a: "are feeling", w: ["is feeling", "feel", "are feel"] },
+            { q: "Mark _____ (fight) with his brother over a toy now.", a: "is fighting", w: ["are fighting", "fights", "is fight"] },
+            { q: "Ben and Paul _____ (find) a seat in the crowded dim sum restaurant now.", a: "are finding", w: ["is finding", "find", "are find"] },
+            { q: "Look! The kite _____ (fly) high above Tai Po Waterfront Park now.", a: "is flying", w: ["are flying", "flies", "is fly"] },
+            { q: "Sue _____ (forget) her locker password right now.", a: "is forgetting", w: ["are forgetting", "forgets", "is forget"] },
+            { q: "Ken _____ (get) off the tram in Causeway Bay at the moment.", a: "is getting", w: ["are getting", "gets", "is get"] },
+            { q: "Tim and Roy _____ (grow) a bean plant for Science class now.", a: "are growing", w: ["is growing", "grow", "are grow"] },
+            { q: "Joy _____ (hang) her jacket on the chair right now.", a: "is hanging", w: ["are hanging", "hangs", "is hang"] },
+            { q: "Jim and Ray _____ (have) lunch in a fast food shop at the moment.", a: "are having", w: ["is having", "have", "are have"] },
+            { q: "Zoe _____ (hear) a loud noise outside the window now.", a: "is hearing", w: ["are hearing", "hears", "is hear"] },
+            { q: "Max _____ (hold) his umbrella because it is raining right now.", a: "is holding", w: ["are holding", "holds", "is hold"] },
+            { q: "Dan and Mia _____ (keep) their desks clean today.", a: "are keeping", w: ["is keeping", "keep", "are keep"] },
+            { q: "Ian _____ (know) the answer to the teacher's question now.", a: "is knowing", w: ["are knowing", "knows", "is know"] },
+            { q: "Eva and Ron _____ (learn) about Hong Kong history at the museum now.", a: "are learning", w: ["is learning", "learn", "are learn"] },
+            { q: "Tom _____ (leave) the classroom to go to the toilet right now.", a: "is leaving", w: ["are leaving", "leaves", "is leave"] },
+            { q: "Lily _____ (let) her friend borrow her eraser at the moment.", a: "is letting", w: ["are letting", "lets", "is let"] },
+            { q: "Jack and Sam _____ (light) a lantern for Mid-Autumn Festival now.", a: "are lighting", w: ["is lighting", "light", "are light"] },
+            { q: "Ann _____ (lose) the race on Sports Day right now.", a: "is losing", w: ["are losing", "loses", "is lose"] },
+            { q: "Bob and Pam _____ (make) dumplings for dinner at the moment.", a: "are making", w: ["is making", "make", "are make"] },
+            { q: "Leo _____ (mean) to finish his homework right now.", a: "is meaning", w: ["are meaning", "means", "is mean"] },
+            { q: "Amy _____ (meet) her friends at the MTR station now.", a: "is meeting", w: ["are meeting", "meets", "is meet"] },
+            { q: "Mark and I _____ (pay) for our fishballs with Octopus cards right now.", a: "are paying", w: ["is paying", "pay", "are pay"] },
+            { q: "Ben _____ (put) his books into his schoolbag at the moment.", a: "is putting", w: ["are putting", "puts", "is put"] },
+            { q: "Paul and Sue _____ (ride) the Ngong Ping 360 cable car now.", a: "are riding", w: ["is riding", "ride", "are ride"] },
+            { q: "Ken _____ (ring) the school bell right now.", a: "is ringing", w: ["are ringing", "rings", "is ring"] },
+            { q: "The sun _____ (rise) over Victoria Harbour this morning.", a: "is rising", w: ["are rising", "rises", "is rise"] },
+            { q: "Tim _____ (say) goodbye to his teacher at the moment.", a: "is saying", w: ["are saying", "says", "is say"] },
+            { q: "Roy and Joy _____ (see) the pandas at Ocean Park now.", a: "are seeing", w: ["is seeing", "see", "are see"] },
+            { q: "Jim _____ (sell) flags for charity in Central right now.", a: "is selling", w: ["are selling", "sells", "is sell"] },
+            { q: "Ray and Zoe _____ (send) a parcel at the post office at the moment.", a: "are sending", w: ["is sending", "send", "are send"] },
+            { q: "Max _____ (set) the table for dinner right now.", a: "is setting", w: ["are setting", "sets", "is set"] },
+            { q: "Dan _____ (sew) a button on his school uniform now.", a: "is sewing", w: ["are sewing", "sews", "is sew"] },
+            { q: "Mia and Ian _____ (shake) hands with the principal at the moment.", a: "are shaking", w: ["is shaking", "shake", "are shake"] },
+            { q: "Eva _____ (show) her new watch to her friends right now.", a: "is showing", w: ["are showing", "shows", "is show"] }
+        ];
 
-// Level 2: Modal Verbs / No Change of Verb (60 New Questions - Primary 2 Focus)
-const level2 = [
-    { q: "Let's _____ (go) to the playground now.", a: "go", w: ["going", "goes", "to go"] },
-    { q: "I can _____ (swim) in the sea.", a: "swim", w: ["swimming", "swims", "swam"] },
-    { q: "You mustn't _____ (run) in the corridor.", a: "run", w: ["running", "runs", "ran"] },
-    { q: "We must _____ (listen) to the teacher.", a: "listen", w: ["listening", "listens", "listened"] },
-    { q: "Let's _____ (eat) some dim sum together.", a: "eat", w: ["eating", "eats", "ate"] },
-    { q: "She can _____ (play) the piano very well.", a: "play", w: ["playing", "plays", "played"] },
-    { q: "You cannot _____ (shout) in the library.", a: "shout", w: ["shouting", "shouts", "shouted"] },
-    { q: "We must _____ (clean) our desks every day.", a: "clean", w: ["cleaning", "cleans", "cleaned"] },
-    { q: "Let's _____ (sing) a song in music class.", a: "sing", w: ["singing", "sings", "sang"] },
-    { q: "He can't _____ (fly) like a bird.", a: "fly", w: ["flying", "flies", "flew"] },
-    { q: "You mustn't _____ (litter) in the park.", a: "litter", w: ["littering", "litters", "littered"] },
-    { q: "We must _____ (hand) in our homework on time.", a: "hand", w: ["handing", "hands", "handed"] },
-    { q: "Let's _____ (draw) a funny picture on paper.", a: "draw", w: ["drawing", "draws", "drew"] },
-    { q: "Tom can _____ (ride) a bicycle easily.", a: "ride", w: ["riding", "rides", "rode"] },
-    { q: "You cannot _____ (eat) in the computer room.", a: "eat", w: ["eating", "eats", "ate"] },
-    { q: "Students must _____ (be) quiet during tests.", a: "be", w: ["are", "is", "being"] },
-    { q: "Let's _____ (read) this storybook together.", a: "read", w: ["reading", "reads", "to read"] },
-    { q: "Birds can _____ (build) nests in trees.", a: "build", w: ["building", "builds", "built"] },
-    { q: "You mustn't _____ (push) other students.", a: "push", w: ["pushing", "pushes", "pushed"] },
-    { q: "We must _____ (line) up nicely at the bus stop.", a: "line", w: ["lining", "lines", "lined"] },
-    { q: "Let's _____ (drink) warm milk before bedtime.", a: "drink", w: ["drinking", "drinks", "drank"] },
-    { q: "Lily can't _____ (find) her green pencil case.", a: "find", w: ["finding", "finds", "found"] },
-    { q: "You cannot _____ (step) on the grass.", a: "step", w: ["stepping", "steps", "stepped"] },
-    { q: "We must _____ (wear) school uniform on weekdays.", a: "wear", w: ["wearing", "wears", "wore"] },
-    { q: "Let's _____ (help) Mum wash the dishes.", a: "help", w: ["helping", "helps", "helped"] },
-    { q: "Sam can _____ (speak) English and Cantonese.", a: "speak", w: ["speaking", "speaks", "spoke"] },
-    { q: "You mustn't _____ (talk) while the teacher is speaking.", a: "talk", w: ["talking", "talks", "talked"] },
-    { q: "We must _____ (wash) our hands before lunch.", a: "wash", w: ["washing", "washes", "washed"] },
-    { q: "Let's _____ (make) a birthday card for Dad.", a: "make", w: ["making", "makes", "made"] },
-    { q: "Amy can _____ (jump) very high.", a: "jump", w: ["jumping", "jumps", "jumped"] },
-    { q: "You cannot _____ (bring) toys to school.", a: "bring", w: ["bringing", "brings", "brought"] },
-    { q: "We must _____ (cross) the road carefully.", a: "cross", w: ["crossing", "crosses", "crossed"] },
-    { q: "Let's _____ (walk) to school together today.", a: "walk", w: ["walking", "walks", "walked"] },
-    { q: "Dogs can _____ (run) fast in the garden.", a: "run", w: ["running", "runs", "ran"] },
-    { q: "You mustn't _____ (write) on the school desks.", a: "write", w: ["writing", "writes", "wrote"] },
-    { q: "We must _____ (say) 'Good morning' to teachers.", a: "say", w: ["saying", "says", "said"] },
-    { q: "Let's _____ (play) hide-and-seek at recess.", a: "play", w: ["playing", "plays", "played"] },
-    { q: "Ben can't _____ (catch) the big football.", a: "catch", w: ["catching", "catches", "caught"] },
-    { q: "You cannot _____ (climb) the trees in the park.", a: "climb", w: ["climbing", "climbs", "climbed"] },
-    { q: "We must _____ (keep) the classroom clean.", a: "keep", w: ["keeping", "keeps", "kept"] },
-    { q: "Let's _____ (take) a photo near Victoria Harbour.", a: "take", w: ["taking", "takes", "took"] },
-    { q: "May I _____ (use) your rubber, please?", a: "use", w: ["using", "uses", "used"] },
-    { q: "You mustn't _____ (fight) with your brother.", a: "fight", w: ["fighting", "fights", "fought"] },
-    { q: "We must _____ (turn) off the lights before leaving.", a: "turn", w: ["turning", "turns", "turned"] },
-    { q: "Let's _____ (fly) kites on a sunny afternoon.", a: "fly", w: ["flying", "flies", "flew"] },
-    { q: "Rabbits can _____ (hop) around happily.", a: "hop", w: ["hopping", "hops", "hopped"] },
-    { q: "You cannot _____ (feed) the monkeys in the park.", a: "feed", w: ["feeding", "feeds", "fed"] },
-    { q: "We must _____ (stand) still during national anthem.", a: "stand", w: ["standing", "stands", "stood"] },
-    { q: "Let's _____ (share) these apples with our friends.", a: "share", w: ["sharing", "shares", "shared"] },
-    { q: "Can you _____ (open) the window, please?", a: "open", w: ["opening", "opens", "opened"] },
-    { q: "You mustn't _____ (spit) in public places.", a: "spit", w: ["spitting", "spits", "spat"] },
-    { q: "We must _____ (raise) our hands to ask questions.", a: "raise", w: ["raising", "raises", "raised"] },
-    { q: "Let's _____ (buy) some fresh fruit at the supermarket.", a: "buy", w: ["buying", "buys", "bought"] },
-    { q: "Fish can _____ (swim) in the water.", a: "swim", w: ["swimming", "swims", "swam"] },
-    { q: "You cannot _____ (use) your phone in class.", a: "use", w: ["using", "uses", "used"] },
-    { q: "We must _____ (listen) to our parents.", a: "listen", w: ["listening", "listens", "listened"] },
-    { q: "Let's _____ (sit) down on the bench.", a: "sit", w: ["sitting", "sits", "sat"] },
-    { q: "Can I _____ (have) a cup of water, please?", a: "have", w: ["having", "has", "had"] },
-    { q: "You mustn't _____ (leave) rubbish on the floor.", a: "leave", w: ["leaving", "leaves", "left"] },
-    { q: "We must _____ (be) polite to everyone.", a: "be", w: ["are", "is", "being"] }
-];
+        const level2 = [
+            { q: "Let's _____ (go) to the playground now.", a: "go", w: ["going", "goes", "to go"] },
+            { q: "I can _____ (swim) in the sea.", a: "swim", w: ["swimming", "swims", "swam"] },
+            { q: "You mustn't _____ (run) in the corridor.", a: "run", w: ["running", "runs", "ran"] },
+            { q: "We must _____ (listen) to the teacher.", a: "listen", w: ["listening", "listens", "listened"] },
+            { q: "Let's _____ (eat) some dim sum together.", a: "eat", w: ["eating", "eats", "ate"] },
+            { q: "She can _____ (play) the piano very well.", a: "play", w: ["playing", "plays", "played"] },
+            { q: "You cannot _____ (shout) in the library.", a: "shout", w: ["shouting", "shouts", "shouted"] },
+            { q: "We must _____ (clean) our desks every day.", a: "clean", w: ["cleaning", "cleans", "cleaned"] },
+            { q: "Let's _____ (sing) a song in music class.", a: "sing", w: ["singing", "sings", "sang"] },
+            { q: "He can't _____ (fly) like a bird.", a: "fly", w: ["flying", "flies", "flew"] },
+            { q: "You mustn't _____ (litter) in the park.", a: "litter", w: ["littering", "litters", "littered"] },
+            { q: "We must _____ (hand) in our homework on time.", a: "hand", w: ["handing", "hands", "handed"] },
+            { q: "Let's _____ (draw) a funny picture on paper.", a: "draw", w: ["drawing", "draws", "drew"] },
+            { q: "Tom can _____ (ride) a bicycle easily.", a: "ride", w: ["riding", "rides", "rode"] },
+            { q: "You cannot _____ (eat) in the computer room.", a: "eat", w: ["eating", "eats", "ate"] },
+            { q: "Students must _____ (be) quiet during tests.", a: "be", w: ["are", "is", "being"] },
+            { q: "Let's _____ (read) this storybook together.", a: "read", w: ["reading", "reads", "to read"] },
+            { q: "Birds can _____ (build) nests in trees.", a: "build", w: ["building", "builds", "built"] },
+            { q: "You mustn't _____ (push) other students.", a: "push", w: ["pushing", "pushes", "pushed"] },
+            { q: "We must _____ (line) up nicely at the bus stop.", a: "line", w: ["lining", "lines", "lined"] },
+            { q: "Let's _____ (drink) warm milk before bedtime.", a: "drink", w: ["drinking", "drinks", "drank"] },
+            { q: "Lily can't _____ (find) her green pencil case.", a: "find", w: ["finding", "finds", "found"] },
+            { q: "You cannot _____ (step) on the grass.", a: "step", w: ["stepping", "steps", "stepped"] },
+            { q: "We must _____ (wear) school uniform on weekdays.", a: "wear", w: ["wearing", "wears", "wore"] },
+            { q: "Let's _____ (help) Mum wash the dishes.", a: "help", w: ["helping", "helps", "helped"] },
+            { q: "Sam can _____ (speak) English and Cantonese.", a: "speak", w: ["speaking", "speaks", "spoke"] },
+            { q: "You mustn't _____ (talk) while the teacher is speaking.", a: "talk", w: ["talking", "talks", "talked"] },
+            { q: "We must _____ (wash) our hands before lunch.", a: "wash", w: ["washing", "washes", "washed"] },
+            { q: "Let's _____ (make) a birthday card for Dad.", a: "make", w: ["making", "makes", "made"] },
+            { q: "Amy can _____ (jump) very high.", a: "jump", w: ["jumping", "jumps", "jumped"] },
+            { q: "You cannot _____ (bring) toys to school.", a: "bring", w: ["bringing", "brings", "brought"] },
+            { q: "We must _____ (cross) the road carefully.", a: "cross", w: ["crossing", "crosses", "crossed"] },
+            { q: "Let's _____ (walk) to school together today.", a: "walk", w: ["walking", "walks", "walked"] },
+            { q: "Dogs can _____ (run) fast in the garden.", a: "run", w: ["running", "runs", "ran"] },
+            { q: "You mustn't _____ (write) on the school desks.", a: "write", w: ["writing", "writes", "wrote"] },
+            { q: "We must _____ (say) 'Good morning' to teachers.", a: "say", w: ["saying", "says", "said"] },
+            { q: "Let's _____ (play) hide-and-seek at recess.", a: "play", w: ["playing", "plays", "played"] },
+            { q: "Ben can't _____ (catch) the big football.", a: "catch", w: ["catching", "catches", "caught"] },
+            { q: "You cannot _____ (climb) the trees in the park.", a: "climb", w: ["climbing", "climbs", "climbed"] },
+            { q: "We must _____ (keep) the classroom clean.", a: "keep", w: ["keeping", "keeps", "kept"] },
+            { q: "Let's _____ (take) a photo near Victoria Harbour.", a: "take", w: ["taking", "takes", "took"] },
+            { q: "May I _____ (use) your rubber, please?", a: "use", w: ["using", "uses", "used"] },
+            { q: "You mustn't _____ (fight) with your brother.", a: "fight", w: ["fighting", "fights", "fought"] },
+            { q: "We must _____ (turn) off the lights before leaving.", a: "turn", w: ["turning", "turns", "turned"] },
+            { q: "Let's _____ (fly) kites on a sunny afternoon.", a: "fly", w: ["flying", "flies", "flew"] },
+            { q: "Rabbits can _____ (hop) around happily.", a: "hop", w: ["hopping", "hops", "hopped"] },
+            { q: "You cannot _____ (feed) the monkeys in the park.", a: "feed", w: ["feeding", "feeds", "fed"] },
+            { q: "We must _____ (stand) still during national anthem.", a: "stand", w: ["standing", "stands", "stood"] },
+            { q: "Let's _____ (share) these apples with our friends.", a: "share", w: ["sharing", "shares", "shared"] },
+            { q: "Can you _____ (open) the window, please?", a: "open", w: ["opening", "opens", "opened"] },
+            { q: "You mustn't _____ (spit) in public places.", a: "spit", w: ["spitting", "spits", "spat"] },
+            { q: "We must _____ (raise) our hands to ask questions.", a: "raise", w: ["raising", "raises", "raised"] },
+            { q: "Let's _____ (buy) some fresh fruit at the supermarket.", a: "buy", w: ["buying", "buys", "bought"] },
+            { q: "Fish can _____ (swim) in the water.", a: "swim", w: ["swimming", "swims", "swam"] },
+            { q: "You cannot _____ (use) your phone in class.", a: "use", w: ["using", "uses", "used"] },
+            { q: "We must _____ (listen) to our parents.", a: "listen", w: ["listening", "listens", "listened"] },
+            { q: "Let's _____ (sit) down on the bench.", a: "sit", w: ["sitting", "sits", "sat"] },
+            { q: "Can I _____ (have) a cup of water, please?", a: "have", w: ["having", "has", "had"] },
+            { q: "You mustn't _____ (leave) rubbish on the floor.", a: "leave", w: ["leaving", "leaves", "left"] },
+            { q: "We must _____ (be) polite to everyone.", a: "be", w: ["are", "is", "being"] }
+        ];
 
         const config = {
             'level1': { bank: level1, name: "🍄 Level 1: Present Continuous", pts: 10 },
